@@ -1,25 +1,18 @@
-# arturo-client [![NPM version](https://badge.fury.io/js/arturo-client.svg)](https://npmjs.org/package/arturo-client)
+# arturo-worker [![NPM version](https://badge.fury.io/js/arturo-worker.svg)](https://npmjs.org/package/arturo-worker)
 
 ## Installation
 
 ```sh
-$ yarn add arturo-client
+$ yarn add arturo-worker
 ```
 
 ## Usage
 
 ```js
-const Client = require('arturo-client').default
-const client = new Client(port)
+const Worker = require('arturo-worker').default
+Worker((computation) => {
 
-client.addWorker({route: '/route', path: 'asbolute/path/to/worker'})
-// returns promise
-
-client.removeWorker({route: '/route', path: 'asbolute/path/to/worker'})
-// returns promise
-
-client.end()
-// returns promise
+})
 ```
 
 ## License
