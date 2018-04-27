@@ -1,4 +1,4 @@
-import Actor from '../utilities/Actor'
+import Actor from './utilities/Actor'
 
 export default class Worker extends Actor {
   constructor({ worker }) {
