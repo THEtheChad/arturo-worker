@@ -28,7 +28,7 @@ export default function Factory(worker, opts = {}) {
       }
       messenger.send(job)
     })
-    .on('end', () => messenger.kill())
+    .on('end', () => messenger.exit())
 
   messenger.on('message', (msg) => {
     switch (msg.type) {
