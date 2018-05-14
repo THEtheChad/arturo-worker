@@ -1,9 +1,10 @@
 import { promisify } from 'util'
 
 import Engine from './Engine'
+import uuid from './utilities/uuid'
 import Queue from './utilities/Queue'
 
-export default function Factory(worker, opts = {}) {
+function Factory(worker, opts = {}) {
   const type = typeof worker
   if (type !== 'function')
     throw new Error(`Expected worker to be a function but got ${type} instead.`)
@@ -26,7 +27,10 @@ export default function Factory(worker, opts = {}) {
       else {
         job.status = 'completed'
       }
-      messenger.send(job)
+      messenger.send({
+        type: 'job',
+        payload: job,
+      })
     })
     .on('end', () => messenger.exit())
 
@@ -39,3 +43,22 @@ export default function Factory(worker, opts = {}) {
 
   return queue
 }
+
+Factory.queue = (opts) => new Promise((resolve, reject) => {
+  const nonce = uuid()
+
+  function handler(msg) {
+    if (msg.type !== 'queue' || msg.meta.nonce !== nonce) return
+    messenger.removeListener('message', handler)
+    msg.err ? reject(msg.err) : resolve()
+  }
+  messenger.on('message', handler)
+
+  messenger.send({
+    type: 'queue',
+    payload: opts,
+    meta: { nonce }
+  })
+})
+
+export default Factory
