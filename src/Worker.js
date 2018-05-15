@@ -12,7 +12,6 @@ function Factory(worker, opts = {}) {
   if (worker.length > 1)
     worker = promisify(worker)
 
-  const messenger = opts.messenger || process
   const queue = new Queue()
 
   queue
@@ -27,14 +26,14 @@ function Factory(worker, opts = {}) {
       else {
         job.status = 'completed'
       }
-      messenger.send({
+      process.send({
         type: 'job',
         payload: job,
       })
     })
-    .on('end', () => messenger.exit())
+    .on('end', () => process.exit())
 
-  messenger.on('message', (msg) => {
+  process.on('message', (msg) => {
     switch (msg.type) {
       case 'job': queue.write(msg.job); break
       case 'end': queue.end(); break
@@ -49,12 +48,12 @@ Factory.queue = (opts) => new Promise((resolve, reject) => {
 
   function handler(msg) {
     if (msg.type !== 'queue' || msg.meta.nonce !== nonce) return
-    messenger.removeListener('message', handler)
+    process.removeListener('message', handler)
     msg.err ? reject(msg.err) : resolve()
   }
-  messenger.on('message', handler)
+  process.on('message', handler)
 
-  messenger.send({
+  process.send({
     type: 'queue',
     payload: opts,
     meta: { nonce }
